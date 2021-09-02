@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List _listaTarefas = [];
+  Map<String, dynamic> _ultimaTarefaRemovida = Map();
   var _controllerTarefa = TextEditingController();
 
   Future<File> _getFile() async {
@@ -72,10 +73,30 @@ class _HomePageState extends State<HomePage> {
           key: Key(item),
           direction: DismissDirection.endToStart,
           onDismissed: (direction) {
+            _ultimaTarefaRemovida = _listaTarefas[index];
+
             setState(() {
               _listaTarefas.removeAt(index);
             });
+
             _salvarArquivo();
+
+            final snackbar = SnackBar(
+              duration: Duration(seconds: 5),
+              content: Text("Tarefa removida"),
+              action: SnackBarAction(
+                label: "Desfazer",
+                onPressed: () {
+                  setState(() {
+                    _listaTarefas.insert(index, _ultimaTarefaRemovida);
+                  });
+
+                  _salvarArquivo();
+                },
+              ),
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(snackbar);
           },
           background: Container(
             color: Colors.red,
